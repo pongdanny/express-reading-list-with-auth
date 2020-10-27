@@ -3,7 +3,7 @@ const express = require('express');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 
-const routes = require('./routes');
+const routes = require('./routes/books');
 
 const app = express();
 
