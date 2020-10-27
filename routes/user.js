@@ -1,5 +1,6 @@
 const express = require("express");
 const { check, validationResult } = require("express-validator");
+const { loginUser, logoutUser} = require('../auth');
 
 const db = require("../db/models");
 const { csrfProtection, asyncHandler } = require("./utils");
@@ -51,6 +52,7 @@ userRoutes.post(
         );
 
         if (passwordMatch) {
+          loginUser(req,res, user);
           return res.redirect("/");
         }
       }
@@ -67,6 +69,8 @@ userRoutes.post(
     });
   })
 );
+
+//Dpong123!
 
 const userValidators = [
   // TODO Define the user validators.
@@ -139,6 +143,7 @@ userRoutes.post(
       const hashedPassword = await bcrypt.hash(password, 10);
       user.hashedPassword = hashedPassword;
       await user.save();
+      loginUser(req, res, user);
       res.redirect("/");
     } else {
       const errors = validatorErrors.array().map((error) => error.msg);
@@ -151,5 +156,10 @@ userRoutes.post(
     }
   })
 );
+
+userRoutes.post('/user/logout', (req, res) => {
+  logoutUser(req, res);
+  res.redirect('/user/login')
+})
 
 module.exports = userRoutes;
