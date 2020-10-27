@@ -2,6 +2,7 @@ const express = require("express");
 // const csrf = require('csurf');
 const { check, validationResult } = require("express-validator");
 const { csrfProtection, asyncHandler } = require("./utils");
+const { requireAuth } = require("../auth");
 
 const db = require("../db/models");
 
@@ -13,13 +14,14 @@ const bookRoutes = express.Router();
 
 bookRoutes.get(
   "/",
+  requireAuth,
   asyncHandler(async (req, res) => {
     const books = await db.Book.findAll({ order: [["title", "ASC"]] });
     res.render("book-list", { title: "Books", books });
   })
 );
 
-bookRoutes.get("/book/add", csrfProtection, (req, res) => {
+bookRoutes.get("/book/add", requireAuth, csrfProtection, (req, res) => {
   const book = db.Book.build();
   res.render("book-add", {
     title: "Add Book",
@@ -59,6 +61,7 @@ const bookValidators = [
 bookRoutes.post(
   "/book/add",
   csrfProtection,
+  requireAuth,
   bookValidators,
   asyncHandler(async (req, res) => {
     const { title, author, releaseDate, pageCount, publisher } = req.body;
@@ -90,6 +93,7 @@ bookRoutes.post(
 
 bookRoutes.get(
   "/book/edit/:id(\\d+)",
+  requireAuth,
   csrfProtection,
   asyncHandler(async (req, res) => {
     const bookId = parseInt(req.params.id, 10);
@@ -104,6 +108,7 @@ bookRoutes.get(
 
 bookRoutes.post(
   "/book/edit/:id(\\d+)",
+  requireAuth,
   csrfProtection,
   bookValidators,
   asyncHandler(async (req, res) => {
@@ -139,6 +144,7 @@ bookRoutes.post(
 
 bookRoutes.get(
   "/book/delete/:id(\\d+)",
+  requireAuth,
   csrfProtection,
   asyncHandler(async (req, res) => {
     const bookId = parseInt(req.params.id, 10);
@@ -153,6 +159,7 @@ bookRoutes.get(
 
 bookRoutes.post(
   "/book/delete/:id(\\d+)",
+  requireAuth,
   csrfProtection,
   asyncHandler(async (req, res) => {
     const bookId = parseInt(req.params.id, 10);
